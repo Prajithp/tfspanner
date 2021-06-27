@@ -1,17 +1,23 @@
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 
-from config.database import init_tables
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from utils.request_exceptions import http_exception_handler, request_validation_exception_handler
+from asyncpg.exceptions import UniqueViolationError
 
-from routers import workspace
+from config.database import init_tables
 
-init_tables()
+from exceptions.request_exceptions import http_exception_handler, request_validation_exception_handler
+from exceptions.core import CoreExceptionBase, exception_handler, psql_not_unique
+
+from routers import workspace, state
 
 app = FastAPI()
 app.include_router(workspace.router)
+app.include_router(state.router)
+
+@app.on_event("startup")
+async def startup():
+    await init_tables()
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -22,8 +28,10 @@ async def custom_http_exception_handler(request, e):
 async def custom_validation_exception_handler(request, e):
     return await request_validation_exception_handler(request, e)
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+@app.exception_handler(CoreExceptionBase)
+async def custom_exception_handler(request, e):
+    return await exception_handler(request, e)
 
-    
+@app.exception_handler(UniqueViolationError)
+async def custom_psql_not_unique(request, e):
+    return await psql_not_unique(request, e)
