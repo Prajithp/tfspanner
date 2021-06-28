@@ -1,7 +1,6 @@
 from starlette.responses import JSONResponse
 from fastapi import HTTPException, status
 from fastapi import Request
-from asyncpg.exceptions import UniqueViolationError
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT, HTTP_422_UNPROCESSABLE_ENTITY
 
 class CoreExceptionBase(Exception):
