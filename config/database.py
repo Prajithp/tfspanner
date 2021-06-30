@@ -16,12 +16,14 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()
 
+
 def db_session():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 async def init_tables():
     Base.metadata.create_all(bind=engine)

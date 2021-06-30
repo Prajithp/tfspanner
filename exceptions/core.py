@@ -1,13 +1,18 @@
 from starlette.responses import JSONResponse
 from fastapi import HTTPException, status
 from fastapi import Request
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT, HTTP_422_UNPROCESSABLE_ENTITY
+from starlette.status import (
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+    HTTP_422_UNPROCESSABLE_ENTITY,
+)
+
 
 class CoreExceptionBase(Exception):
     def __init__(self, status_code: int, message: str):
-        self.exception   = self.__class__.__name__
+        self.exception = self.__class__.__name__
         self.status_code = status_code
-        self.message     = message
+        self.message = message
 
     def __str__(self):
         return (
@@ -26,16 +31,18 @@ class CoreException(object):
             CoreExceptionBase.__init__(self, status_code, message)
 
     class UniqueViolationError(CoreExceptionBase):
-         def __init__(self, message: str = "Already exist"):
+        def __init__(self, message: str = "Already exist"):
             """
             Item Already exist
             """
             status_code = HTTP_422_UNPROCESSABLE_ENTITY
             CoreExceptionBase.__init__(self, status_code, message)
 
+
 async def psql_not_unique(request, exc):
-    response = {'message': 'Document is not unique'}
-    return JSONResponse(status_code=HTTP_409_CONFLICT, content=response )
+    response = {"message": "Document is not unique"}
+    return JSONResponse(status_code=HTTP_409_CONFLICT, content=response)
+
 
 async def exception_handler(request: Request, exc: CoreExceptionBase):
     return JSONResponse(
