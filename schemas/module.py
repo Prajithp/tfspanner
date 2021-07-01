@@ -1,6 +1,8 @@
 import json
+from os import stat
 from pydantic import BaseModel, UUID4, Json, validator
 from typing import Any, List, Dict
+from enum import Enum
 
 
 class ModuleBase(BaseModel):
@@ -12,10 +14,26 @@ class ModuleCreate(ModuleBase):
     pass
 
 
+class ModuleState(Enum):
+    PENDING = "Pending"
+    CREATED = "Created"
+    FAILED = "Failed"
+
+
+class ModuleOut(ModuleBase):
+    id: UUID4
+    state: ModuleState
+
+    class Config:
+        orm_mode = True
+        use_enum_values = True
+
+
 class ModuleInDB(ModuleBase):
     id: UUID4
     variables: Json
     outputs: Json
+    state: ModuleState = ModuleState.PENDING
 
     @validator("outputs", pre=True)
     def outputs_decode_json(cls, v):
@@ -35,3 +53,4 @@ class ModuleInDB(ModuleBase):
 
     class Config:
         orm_mode = True
+        use_enum_values = True

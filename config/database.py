@@ -1,24 +1,25 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:test@localhost:5432/terraspanner"
+from sqlalchemy.orm import sessionmaker, scoped_session
+from config.settings import settings
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    settings.SQLALCHEMY_DATABASE_URI,
 )
 
-SessionLocal = sessionmaker(
+session = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
 )
 
+scoped_db_session = scoped_session(session)
+
 Base = declarative_base()
 
 
 def db_session():
-    db = SessionLocal()
+    db = session()
     try:
         yield db
     finally:

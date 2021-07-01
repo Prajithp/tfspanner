@@ -1,8 +1,17 @@
 from sqlalchemy.orm import relationship
 import uuid
 
-from sqlalchemy import Boolean, Column, DateTime, String, ForeignKey, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    String,
+    ForeignKey,
+    UniqueConstraint,
+    Enum,
+)
 from sqlalchemy.dialects.postgresql import UUID, JSON
+from schemas.resource import ResourceState
 from datetime import datetime
 from config.database import Base
 
@@ -35,7 +44,10 @@ class Resource(Base):
         nullable=False,
     )
     outputs = Column(JSON, default={})
-
+    state = Column(Enum(ResourceState), default=ResourceState.PENDING)
+    updated_at = Column(
+        DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
     module = relationship("Module", backref="resources")
     workspace = relationship("Workspace", backref="resources")
 

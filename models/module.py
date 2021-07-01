@@ -1,9 +1,10 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Column, DateTime, String, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from datetime import datetime
 from config.database import Base
+from schemas.module import ModuleState
 
 
 class Module(Base):
@@ -17,10 +18,11 @@ class Module(Base):
         unique=True,
         nullable=False,
     )
-    name = Column(String(256), nullable=False)
+    name = Column(String(256), nullable=False, unique=True)
     source = Column(String(256), nullable=False)
     variables = Column(JSON, default={})
     outputs = Column(JSON, default={})
+    state = Column(Enum(ModuleState), default=ModuleState.PENDING)
 
     def __repr__(self):
         return self.id
