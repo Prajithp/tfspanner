@@ -14,7 +14,7 @@ class ModuleCreate(ModuleBase):
     pass
 
 
-class ModuleState(Enum):
+class ModuleState(str, Enum):
     PENDING = "Pending"
     CREATED = "Created"
     FAILED = "Failed"

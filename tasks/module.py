@@ -1,8 +1,7 @@
-from logging import Logger
-from re import M
 from typing import Dict
-
-from sqlalchemy.orm import session
+from shutil import rmtree
+from os import listdir, path
+from celery_singleton import Singleton
 from config.celery import celery_app
 from config.database import db_session
 from core.module.registry import Registry
@@ -11,13 +10,10 @@ from schemas.module import ModuleInDB, ModuleState
 from models.module import Module
 from utils.logger import getLogger
 
-from shutil import rmtree
-from os import listdir, path
-
 logger = getLogger(__name__)
 
 
-@celery_app.task(name="fetch_module", bind=True)
+@celery_app.task(base=Singleton, name="fetch_module", bind=True)
 def build_module_meta_data(self, module: Dict) -> bool:
     module_name = module["name"]
     module_source = module["source"]
@@ -33,12 +29,12 @@ def build_module_meta_data(self, module: Dict) -> bool:
         ]
 
         try:
-            builder = TfVariables(module_name, tf_files)
-            builder.build()
-            vars_meta = builder.to_dict()
+            vars_builder = TfVariables(module_name, tf_files)
+            vars_builder.build()
+            vars_meta = vars_builder.to_dict()
         except Exception as e:
             vars_meta = None
-            logger.exception(f"An exception occured during parsing variables {e}")
+            logger.exception(f"An exception occured when parsing variables {e}")
             return False
         try:
             output_builder = TfOutputs(tf_files)
@@ -46,7 +42,7 @@ def build_module_meta_data(self, module: Dict) -> bool:
             outputs_meta = output_builder.to_dict()
         except Exception as e:
             outputs_meta = None
-            logger.exception(f"An exception occured during parsing outputs {e}")
+            logger.exception(f"An exception occured when parsing outputs {e}")
             return False
 
         session = next(db_session())

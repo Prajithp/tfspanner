@@ -10,7 +10,7 @@ from services.base import CRUDBase
 
 class WorkspaceService(CRUDBase):
     async def list_all(self):
-        workspaces = self.db.query(Workspace).order_by(Workspace.id).all()
+        workspaces = self._query(Workspace).order_by(Workspace.id).all()
         return workspaces
 
     async def list_by_id(self, workspace_id: UUID4):

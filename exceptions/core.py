@@ -5,7 +5,11 @@ from starlette.status import (
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
     HTTP_422_UNPROCESSABLE_ENTITY,
+    HTTP_423_LOCKED,
 )
+
+from celery_singleton.exceptions import DuplicateTaskError
+from starlette.types import Message
 
 
 class CoreExceptionBase(Exception):
@@ -36,6 +40,24 @@ class CoreException(object):
             Item Already exist
             """
             status_code = HTTP_422_UNPROCESSABLE_ENTITY
+            CoreExceptionBase.__init__(self, status_code, message)
+
+    class DuplicateTaskError(CoreExceptionBase):
+        def __init__(self, task_id: str):
+            status_code = HTTP_422_UNPROCESSABLE_ENTITY
+            message = f"Task with id {task_id} is already in the queue"
+            CoreExceptionBase.__init__(self, status_code, message)
+
+    class ResourceLocked(CoreExceptionBase):
+        def __init__(self, lock_id: str):
+            status_code = HTTP_423_LOCKED
+            message = f"Resorce is locked with lock id {lock_id}"
+            CoreExceptionBase.__init__(self, status_code, message)
+
+    class ResourceLockConflict(CoreExceptionBase):
+        def __init__(self, lock_id: str):
+            status_code = HTTP_409_CONFLICT
+            message = f"Resorce is locked with lock id {lock_id}"
             CoreExceptionBase.__init__(self, status_code, message)
 
 

@@ -14,6 +14,8 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 from schemas.resource import ResourceState
 from datetime import datetime
 from config.database import Base
+from models.workspace import Workspace
+from models.module import Module
 
 
 class Resource(Base):
@@ -32,7 +34,6 @@ class Resource(Base):
         UUID(as_uuid=True),
         ForeignKey("workspace.id"),
         index=True,
-        primary_key=True,
         nullable=False,
     )
     variables = Column(JSON, default={})
@@ -40,11 +41,11 @@ class Resource(Base):
         UUID(as_uuid=True),
         ForeignKey("module.id"),
         index=True,
-        primary_key=True,
         nullable=False,
     )
     outputs = Column(JSON, default={})
     state = Column(Enum(ResourceState), default=ResourceState.PENDING)
+    user_approved = Column(Boolean, default=False)
     updated_at = Column(
         DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )

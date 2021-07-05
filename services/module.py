@@ -1,11 +1,13 @@
+import json
 from typing import Any, Dict, Optional
+from fastapi import exceptions
 from pydantic import UUID4
-
 from tasks.module import build_module_meta_data
 from models.module import Module
 from schemas.module import ModuleCreate, ModuleInDB, ModuleOut, ModuleState
 from exceptions.core import CoreException
 from services.base import CRUDBase
+from celery_singleton.exceptions import DuplicateTaskError
 
 
 class ModuleService(CRUDBase):
@@ -25,12 +27,19 @@ class ModuleService(CRUDBase):
 
         module_obj = Module(name=module.name, source=module.source)
         module_obj = self._create(module_obj)
-        module_schema = ModuleInDB.from_orm(module_obj).dict()
+        """
+        UUID object is not converting to proper string when using dict()
+        so this is an hacky way to convert all object in to proper string
+        """
+        module_schema = json.loads(ModuleInDB.from_orm(module_obj).json())
 
         custom_task_id = str(module_obj.id)
-        task_id = build_module_meta_data.apply_async(
-            args=[module_schema], task_id=custom_task_id
-        )
+        try:
+            task_id = build_module_meta_data.apply_async(
+                args=[module_schema], task_id=custom_task_id
+            )
+        except DuplicateTaskError as e:
+            raise (CoreException.DuplicateTaskError(e.task_id))
 
         return module_obj
 
@@ -38,12 +47,20 @@ class ModuleService(CRUDBase):
         module = await self.get_by_id(module_id)
 
         self._update(module, state=ModuleState.PENDING)
-        module_schema = ModuleInDB.from_orm(module).dict()
+
+        """
+        UUID object is not converting to proper string when using dict()
+        so this is an hacky way to convert all object in to proper string
+        """
+        module_schema = json.loads(ModuleInDB.from_orm(module).json())
 
         custom_task_id = str(module.id)
-        task_id = build_module_meta_data.apply_async(
-            args=[module_schema], task_id=custom_task_id
-        )
+        try:
+            task_id = build_module_meta_data.apply_async(
+                args=[module_schema], task_id=custom_task_id
+            )
+        except DuplicateTaskError as e:
+            raise (CoreException.DuplicateTaskError(e.task_id))
 
         return module
 

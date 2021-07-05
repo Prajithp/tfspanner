@@ -7,10 +7,15 @@ from exceptions.request_exceptions import (
     http_exception_handler,
     request_validation_exception_handler,
 )
+
 from exceptions.core import CoreExceptionBase, exception_handler, psql_not_unique
 from routers import workspace, state, module, resource
 
-app = FastAPI()
+app = FastAPI(
+    title="tfSpanner",
+    description="Create and manage terraform resources",
+    version="0.0.1",
+)
 app.include_router(workspace.router)
 app.include_router(state.router)
 app.include_router(module.router)

@@ -1,51 +1,42 @@
 import json
+from asyncpg.exceptions import DatetimeFieldOverflowError
 from pydantic import BaseModel, UUID4, Json, validator
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 from enum import Enum
 from schemas.module import ModuleInDB
 from schemas.workspace import WorkspaceInDB
+from datetime import datetime
 
 
 class ResourceBase(BaseModel):
     name: str
-    workspace_id: UUID4
     module_id: UUID4
-    variables: Json
+    variables: Dict[Any, Any]
 
 
 class ResourceCreate(ResourceBase):
     pass
 
 
-class ResourceState(Enum):
+class ResourceState(str, Enum):
     PENDING = "Pending"
-    APPLIED = "Applied"
-    FAILED = "Failed"
-    PLANNED = "Planned"
+    PLAN_FAILED = "PlanFailed"
+    APPLY_FAILED = "ApplyFailed"
+    PLAN_RUNNING = "PlanRunning"
+    APPLY_RUNNING = "ApplyRunning"
+    PLAN_COMPLETED = "PlanCompleted"
+    APPLY_COMPLETED = "ApplyCompleted"
 
 
 class ResourceInDB(ResourceBase):
     id: UUID4
-    outputs: Json
+    outputs: Dict[str, Any]
     module: ModuleInDB
     workspace: WorkspaceInDB
     state: ResourceState
-
-    @validator("outputs", pre=True)
-    def outputs_decode_json(cls, v):
-        if not isinstance(v, str):
-            try:
-                return json.dumps(v)
-            except Exception as err:
-                raise ValueError(f"Could not parse value into valid JSON: {err}")
-
-    @validator("variables", pre=True)
-    def variables_decode_json(cls, v):
-        if not isinstance(v, str):
-            try:
-                return json.dumps(v)
-            except Exception as err:
-                raise ValueError(f"Could not parse value into valid JSON: {err}")
+    updated_at: datetime
+    workspace_id: UUID4
+    user_approved: bool
 
     class Config:
         orm_mode = True

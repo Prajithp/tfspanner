@@ -9,8 +9,8 @@ from schemas.workspace import WorkspaceCreate, WorkspaceInDB
 from services.workspace import WorkspaceService
 
 router = APIRouter(
-    prefix="/workspace",
-    tags=["projects"],
+    prefix="/workspaces",
+    tags=["workspace"],
     responses={404: {"message": "Not found"}},
 )
 

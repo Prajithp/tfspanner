@@ -1,0 +1,32 @@
+
+terraform {
+  backend "http" {
+    address = "{{ state['backend_adress'] }}"
+    lock_address = "{{ state['lock_address'] }}"
+    unlock_address = "{{ state['unlock_address'] }}"
+    lock_method = "{{ state['lock_method'] }}"
+    unlock_method = "{{ state['unlock_method'] }}"
+  }
+}
+
+provider "{{ workspace['provider'] }}" {
+  region = "us-east-1"
+  profile = "MS-DevOps"
+}
+
+module "{{ name }}" {
+  source = "{{ module['source'] }}"
+
+{% for var in variables -%}
+  {%- set value =  variables[var] -%}
+  {{ "%-20s" | format(var) }} = {{ value|to_hcl }}
+{%- endfor %}
+
+}
+
+{% for section in outputs %}
+output "{{ section }}" {
+ value       = module.{{name}}.{{ section }}
+ description = "{{ outputs[section] }}"
+}
+{% endfor %}
