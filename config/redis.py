@@ -23,8 +23,4 @@ def redis_session() -> Generator:
 
 
 async def async_redis_session() -> AsyncIterator[Redis]:
-    try:
-        redis_db = aioredis.from_url(settings.AIOREDIS_URI, decode_responses=True)
-        yield redis_db
-    finally:
-        await redis_db.close()
+    return await aioredis.create_redis_pool(settings.AIOREDIS_URI)

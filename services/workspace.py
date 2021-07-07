@@ -1,6 +1,7 @@
 import uuid
 
 from pydantic import UUID4
+from typing import List
 
 from models.workspace import Workspace
 from schemas.workspace import WorkspaceCreate, WorkspaceInDB
@@ -9,11 +10,11 @@ from services.base import CRUDBase
 
 
 class WorkspaceService(CRUDBase):
-    async def list_all(self):
+    async def list_all(self) -> List[WorkspaceInDB]:
         workspaces = self._query(Workspace).order_by(Workspace.id).all()
         return workspaces
 
-    async def list_by_id(self, workspace_id: UUID4):
+    async def list_by_id(self, workspace_id: UUID4) -> WorkspaceInDB:
         result = self._query(Workspace).filter(Workspace.id == workspace_id).first()
         if result is None:
             raise (
@@ -23,7 +24,7 @@ class WorkspaceService(CRUDBase):
             )
         return result
 
-    async def create(self, workspace: WorkspaceCreate):
+    async def create(self, workspace: WorkspaceCreate) -> WorkspaceInDB:
         result = self._query(Workspace).filter(Workspace.name == workspace.name).first()
         if result is not None:
             raise (CoreException.UniqueViolationError())

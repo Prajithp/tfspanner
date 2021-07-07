@@ -1,4 +1,5 @@
-from typing import Any
+import subprocess
+from typing import Any, Dict, List, Union
 from python_terraform import Terraform, IsFlagged
 from sqlalchemy.dialects.postgresql import json
 import json
@@ -40,7 +41,7 @@ class TfWorker:
             raise IOError("handler is not a callable function")
         self._stream = handler
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> Any:
         def wrapper(*args, **kwargs):
             if self._stream is not None:
                 kwargs.update({"synchronous": False})
@@ -66,7 +67,7 @@ class TfWorker:
 
         return wrapper
 
-    def publish(self, stdout, stderr):
+    def publish(self, stdout: bytes, stderr: bytes) -> None:
         try:
             if stdout:
                 self.stream(stdout)
@@ -75,13 +76,13 @@ class TfWorker:
         except Exception as e:
             self.logger.error(f"Failed to publish output {e}")
 
-    def output_dict(self):
+    def output_dict(self) -> Dict:
         r_code, raw_data, stderr = self.tf.cmd("output", json=IsFlagged)
         if r_code == 0:
             return json.loads(raw_data)
         return None
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         r_code, _, _ = self.init()
         if r_code >= 1:
             raise (TerrformInitFailed(r_code))

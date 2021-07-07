@@ -30,6 +30,6 @@ async def get_workspace(
 
 
 @router.post("/", response_model=WorkspaceInDB)
-async def create_project(workspace: WorkspaceCreate, db: Session = Depends(db_session)):
+async def create_workspace(workspace: WorkspaceCreate, db: Session = Depends(db_session)):
     if result := await WorkspaceService(db).create(workspace):
         return result

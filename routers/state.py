@@ -46,3 +46,9 @@ async def unlock_state(
     workspace_id: UUID4, lock_info: StateLockCreate, db: Session = Depends(db_session)
 ) -> StateLockInDB:
     return await StateService(db).unlock_state(workspace_id, lock_info)
+
+@router.patch("/workspace/{workspace_id}/unlock/force/", response_model=StateLockInDB)
+async def force_unlock_state(
+    workspace_id: UUID4, db: Session = Depends(db_session)
+) -> StateLockInDB:
+    return await StateService(db).force_unlock_state(workspace_id)

@@ -15,7 +15,7 @@ class HTTPLoader(ModuleLoader):
             return True
         return False
 
-    def _load_module(self, tmp_dir: str, name: str, source: str):
+    def _load_module(self, tmp_dir: str, name: str, source: str) -> str:
         r = requests.get(url=source)
         if r.status_code != HTTPStatus.OK and r.status_code != HTTPStatus.NO_CONTENT:
             return None

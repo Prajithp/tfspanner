@@ -1,5 +1,6 @@
 import json
 from asyncpg.exceptions import DatetimeFieldOverflowError
+from celery.app import task
 from pydantic import BaseModel, UUID4, Json, validator
 from typing import Any, List, Dict, Optional
 from enum import Enum
@@ -12,6 +13,22 @@ class ResourceBase(BaseModel):
     name: str
     module_id: UUID4
     variables: Dict[Any, Any]
+
+
+class TfTaskInfo(BaseModel):
+    task_id: str
+
+
+class TfTaskAction(str, Enum):
+    apply = "apply"
+    plan = "plan"
+    destroy = "destroy"
+
+
+class TfTaskActionBody(BaseModel):
+    parallelism: Optional[int] = None
+    target: Optional[str] = None
+    var: Optional[Dict] = None
 
 
 class ResourceCreate(ResourceBase):

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, List, Optional
+from typing import Callable, Optional, List, Optional
 from utils.logger import getLogger
 
 logger = getLogger(__name__)
@@ -24,7 +24,7 @@ class ModuleRegistry:
                 break
         return module_path
 
-    def register(self, module):
+    def register(self, module: Callable) -> None:
         self.loaders.append(module)
 
 

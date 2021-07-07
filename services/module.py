@@ -48,10 +48,6 @@ class ModuleService(CRUDBase):
 
         self._update(module, state=ModuleState.PENDING)
 
-        """
-        UUID object is not converting to proper string when using dict()
-        so this is an hacky way to convert all object in to proper string
-        """
         module_schema = json.loads(ModuleInDB.from_orm(module).json())
 
         custom_task_id = str(module.id)

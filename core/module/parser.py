@@ -14,7 +14,7 @@ Value = Optional[str]
 Path = Union[str, os.PathLike]
 
 
-def _remove_list_from_values(data: Dict):
+def _remove_list_from_values(data: Dict) -> Dict:
     if isinstance(data, dict):
         new_data = {}
         for key, values in data.items():
@@ -77,7 +77,7 @@ class TfVariables:
 
             return ["object", json.dumps(_type_map)]
 
-    def load(self, filelist: List[str]):
+    def load(self, filelist: List[str]) -> Dict:
         variables = {}
         for filename in filelist:
             with open(filename, "r") as fh:
@@ -219,11 +219,11 @@ class TfVariables:
 
 
 class TfOutputs:
-    def __init__(self, filelist: List[str]):
+    def __init__(self, filelist: List[str]) -> None:
         self.outputs = {}
         self.obj = self.load(filelist)
 
-    def load(self, filelist: List[str]):
+    def load(self, filelist: List[str]) -> Dict:
         outputs = {}
         for filename in filelist:
             with open(filename, "r") as fh:
@@ -232,7 +232,7 @@ class TfOutputs:
                 outputs.update(obj.get("output", {}))
         return outputs
 
-    def build(self):
+    def build(self) -> None:
         for key in self.obj:
             section = self.obj[key]
             description = section.get("description", "")
@@ -241,5 +241,5 @@ class TfOutputs:
     def to_json(self, indent: int = 4) -> str:
         return json.dumps(self.outputs, indent=indent)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return self.outputs

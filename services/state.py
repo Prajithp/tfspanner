@@ -2,7 +2,7 @@ from os import stat
 import uuid, json
 from sqlalchemy.orm import Session
 from pydantic import UUID4
-from typing import List
+from typing import Dict, List
 from models.state import Lock, State
 from schemas.state import StateLockCreate, StateLockInDB, TfState, StateInDB, TfResource
 from exceptions.core import CoreException
@@ -24,7 +24,7 @@ class StateService(CRUDBase):
         self._create(state_obj)
         return state_obj.state
 
-    async def list_by_workspace_id(self, workspace_id: UUID4):
+    async def list_by_workspace_id(self, workspace_id: UUID4) -> Dict:
         result = self._query(State).filter(State.workspace_id == workspace_id).first()
         if not result:
             raise (
@@ -86,6 +86,23 @@ class StateService(CRUDBase):
 
         if lock.id != lock_info.id:
             raise (CoreException.ResourceLockConflict(lock_info.id))
+
+        try:
+            self.db.delete(lock)
+            self.db.commit()
+        except Exception as e:
+            raise (e)
+
+        return lock
+
+    async def force_unlock_state(self, workspace_id: UUID4) -> StateLockInDB:
+        lock = await self.is_locked(workspace_id)
+        if lock is None:
+            raise (
+                CoreException.NotFound(
+                    f"workspace {workspace_id} is not in locked state"
+                )
+            )
 
         try:
             self.db.delete(lock)

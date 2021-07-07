@@ -26,12 +26,12 @@ async def create_module(module: ModuleCreate, db: Session = Depends(db_session))
 
 
 @router.get("/{module_id}/", response_model=ModuleOut)
-async def get_variables(module_id: UUID, db: Session = Depends(db_session)):
+async def get_module(module_id: UUID, db: Session = Depends(db_session)):
     return await ModuleService(db).get_by_id(module_id)
 
 
 @router.get("/{module_id}/reindex/", response_model=ModuleOut)
-async def get_variables(module_id: UUID, db: Session = Depends(db_session)):
+async def reindex_module(module_id: UUID, db: Session = Depends(db_session)):
     return await ModuleService(db).reindex_module(module_id)
 
 
@@ -41,5 +41,5 @@ async def get_variables(module_id: UUID, db: Session = Depends(db_session)):
 
 
 @router.get("/{module_id}/outputs/", response_model=Dict[Any, Any])
-async def get_variables(module_id: UUID, db: Session = Depends(db_session)):
+async def get_outputs(module_id: UUID, db: Session = Depends(db_session)):
     return await ModuleService(db).get_outputs_by_id(module_id)
