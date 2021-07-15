@@ -49,9 +49,9 @@ class Renderer:
         backend_address = f"{settings.BASE_URL}/states/remote/workspace/{workspace_id}"
 
         state = {
-            "backend_adress": f"{backend_address}/",
-            "lock_address": f"{backend_address}/lock/",
-            "unlock_address": f"{backend_address}/unlock/",
+            "backend_adress": f"{backend_address}",
+            "lock_address": f"{backend_address}/lock",
+            "unlock_address": f"{backend_address}/unlock",
             "lock_method": "POST",
             "unlock_method": "DELETE",
         }

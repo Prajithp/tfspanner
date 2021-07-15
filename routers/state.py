@@ -15,39 +15,40 @@ router = APIRouter(
 )
 
 
-@router.get("/resources/workspace/{workspace_id}/", response_model=List[TfResource])
+@router.get("/resources/workspace/{workspace_id}", response_model=List[TfResource])
 async def get_resources(
     workspace_id: UUID4, db: Session = Depends(db_session)
 ) -> List[TfResource]:
     return await StateService(db).list_resources(workspace_id)
 
 
-@router.get("/remote/workspace/{workspace_id}/", response_model=TfState)
+@router.get("/remote/workspace/{workspace_id}", response_model=TfState)
 async def get_state(workspace_id: UUID4, db: Session = Depends(db_session)) -> TfState:
     return await StateService(db).list_by_workspace_id(workspace_id)
 
 
-@router.post("/remote/workspace/{workspace_id}/", response_model=TfState)
+@router.post("/remote/workspace/{workspace_id}", response_model=TfState)
 async def create_state(
     workspace_id: UUID4, state: TfState, db: Session = Depends(db_session)
 ) -> TfState:
     return await StateService(db).create_or_update(workspace_id, state)
 
 
-@router.post("/remote/workspace/{workspace_id}/lock/", response_model=StateLockInDB)
+@router.post("/remote/workspace/{workspace_id}/lock", response_model=StateLockInDB)
 async def lock_state(
     workspace_id: UUID4, lock_info: StateLockCreate, db: Session = Depends(db_session)
 ) -> StateLockInDB:
     return await StateService(db).lock_state(workspace_id, lock_info)
 
 
-@router.delete("/remote/workspace/{workspace_id}/unlock/", response_model=StateLockInDB)
+@router.delete("/remote/workspace/{workspace_id}/unlock", response_model=StateLockInDB)
 async def unlock_state(
     workspace_id: UUID4, lock_info: StateLockCreate, db: Session = Depends(db_session)
 ) -> StateLockInDB:
     return await StateService(db).unlock_state(workspace_id, lock_info)
 
-@router.patch("/workspace/{workspace_id}/unlock/force/", response_model=StateLockInDB)
+
+@router.patch("/workspace/{workspace_id}/unlock/force", response_model=StateLockInDB)
 async def force_unlock_state(
     workspace_id: UUID4, db: Session = Depends(db_session)
 ) -> StateLockInDB:

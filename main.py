@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from asyncpg.exceptions import UniqueViolationError
 from config.database import init_tables
-from config.settings import redisSettings
+from config.settings import settings
 from exceptions.request_exceptions import (
     http_exception_handler,
     request_validation_exception_handler,
@@ -36,12 +36,14 @@ app.include_router(resource.router)
 @app.on_event("startup")
 async def startup():
     await init_tables()
-    await redis_plugin.init_app(app, config=redisSettings)
+    await redis_plugin.init_app(app, config=settings)
     await redis_plugin.init()
-    
+
+
 @app.on_event("shutdown")
 async def close_redis():
     await redis_plugin.terminate()
+
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, e):

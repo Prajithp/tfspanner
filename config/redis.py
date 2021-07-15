@@ -1,15 +1,13 @@
 from typing import AsyncGenerator, AsyncIterator, Generator
 import redis
 from redis import Redis
-import aioredis
-from aioredis import Redis
 
 from config.settings import settings
 from utils.logger import getLogger
 
 logger = getLogger(__name__)
 
-pool = redis.ConnectionPool(host=settings.REDIS_SERVER, port=settings.REDIS_PORT, db=0)
+pool = redis.ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 
 
 def redis_session() -> Generator:
@@ -20,7 +18,3 @@ def redis_session() -> Generator:
         logger.error(f"Error while connecting to redis {e}")
     finally:
         connection.close()
-
-
-async def async_redis_session() -> AsyncIterator[Redis]:
-    return await aioredis.create_redis_pool(settings.AIOREDIS_URI)

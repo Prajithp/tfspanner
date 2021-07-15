@@ -28,6 +28,7 @@ router = APIRouter(
     responses={404: {"message": "Not found"}},
 )
 
+
 @router.get("/workspace/{workspace_id}", response_model=List[ResourceInDB])
 async def get_all_resources(
     workspace_id: UUID4, db: Session = Depends(db_session)
@@ -56,13 +57,15 @@ async def start_task(
     return await ResourceService(db).start_task(resource_id, action, parameter)
 
 
-@router.websocket("/{resource_id}/task/stream/")
-async def stream_tf_result(websocket: WebSocket, resource_id: UUID4, redis: Redis = Depends(depends_redis)):
+@router.websocket("/{resource_id}/task/stream")
+async def stream_tf_result(
+    websocket: WebSocket, resource_id: UUID4, redis: Redis = Depends(depends_redis)
+):
     await websocket.accept()
     (channel,) = await redis.subscribe(channel=Channel(str(resource_id), False))
     try:
         while True:
-            message = await channel.get(encoding='utf-8')
+            message = await channel.get(encoding="utf-8")
             if message:
                 await websocket.send_json({"message": message})
     except Exception as e:

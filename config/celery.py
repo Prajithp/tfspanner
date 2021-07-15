@@ -11,7 +11,7 @@ class Config:
     broker_url = "sqla+" + settings.SQLALCHEMY_DATABASE_URI
 
     include = ["tasks.module", "tasks.tfrunner"]
-    singleton_backend_url = settings.CELERY_ONCE_REDIS_URI
+    singleton_backend_url = settings.CELERY_REDIS_URI
     singleton_raise_on_duplicate = True
     singleton_lock_expiry = 60 * 60 * 2
     worker_hijack_root_logger = False

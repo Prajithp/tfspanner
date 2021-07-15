@@ -1,0 +1,7 @@
+POSTGRES_SERVER: "localhost"
+POSTGRES_USER: "postgres"
+POSTGRES_PASSWORD: "test"
+POSTGRES_DB: "terraspanner"
+
+REDIS_HOST: "localhost"
+REDIS_PORT: "6379"

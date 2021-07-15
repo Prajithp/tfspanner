@@ -17,19 +17,18 @@ router = APIRouter(
 
 @router.get("/", response_model=List[WorkspaceInDB])
 async def list_workspaces(db: Session = Depends(db_session)) -> List[WorkspaceInDB]:
-    if result := await WorkspaceService(db).list_all():
-        return result
+    return await WorkspaceService(db).list_all()
 
 
 @router.get("/{workspace_id}", response_model=WorkspaceInDB)
 async def get_workspace(
     workspace_id: UUID4, db: Session = Depends(db_session)
 ) -> WorkspaceInDB:
-    if result := await WorkspaceService(db).list_by_id(workspace_id):
-        return result
+    return await WorkspaceService(db).list_by_id(workspace_id)
 
 
 @router.post("/", response_model=WorkspaceInDB)
-async def create_workspace(workspace: WorkspaceCreate, db: Session = Depends(db_session)):
-    if result := await WorkspaceService(db).create(workspace):
-        return result
+async def create_workspace(
+    workspace: WorkspaceCreate, db: Session = Depends(db_session)
+):
+    return await WorkspaceService(db).create(workspace)

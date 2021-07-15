@@ -1,11 +1,14 @@
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseSettings, PostgresDsn, validator
 from pydantic.networks import AnyHttpUrl, RedisDsn
 from pydantic.types import DirectoryPath
 from fastapi_plugins import RedisSettings
+import yaml
 
-class Settings(BaseSettings):
+
+class Settings(RedisSettings, BaseSettings):
     BASE_DIR: DirectoryPath = Path(__file__).parent.parent
     BASE_URL: AnyHttpUrl = "http://localhost:8000"
 
@@ -28,18 +31,15 @@ class Settings(BaseSettings):
             path=f"/{values.get('POSTGRES_DB') or ''}",
         )
 
-    REDIS_SERVER: str = "localhost"
+    REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
-    CELERY_ONCE_REDIS_URI: str = f"redis://{REDIS_SERVER}:{REDIS_PORT}/0"
+    CELERY_REDIS_URI: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 
-    class Config:
-        case_sensitive = True
 
-settings = Settings()
+app_env = os.environ.get("APPLICATION_ENV", "development").lower()
+config_file = Path(__file__).parent.joinpath("settings", f"{app_env}.yml")
 
-class RedisConfig(RedisSettings):
-    server_url: str = None
-    redis_host: str = settings.REDIS_SERVER
-    redis_port: int = int(settings.REDIS_PORT)
+with open(config_file, "r") as fh:
+    config = yaml.load(fh, Loader=yaml.FullLoader)
 
-redisSettings = RedisConfig()
+settings = Settings(**config)
