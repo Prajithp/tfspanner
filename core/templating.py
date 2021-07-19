@@ -11,13 +11,12 @@ from jinja2.exceptions import TemplateNotFound, TemplateSyntaxError, UndefinedEr
 from schemas.resource import ResourceInDB
 from config.settings import settings
 
-"""
-Helper function to convert python type to hcl value.
-if a value starts with 'module.' usually it should be a reference to other resource.
-"""
-
 
 def to_hcl(data: Any) -> str:
+    """
+    Helper function to convert python type to hcl value.
+    if a value starts with 'module.' usually it should be a reference to other resource.
+    """
     if isinstance(data, str) and data.startswith("module."):
         return data
 
@@ -68,11 +67,10 @@ class Renderer:
         return self
 
     def __exit__(self, exc_type, value, traceback) -> None:
-        # try:
-        #     rmtree(self.tmpdir)
-        # except Exception as e:
-        #     self.logger.exception(f"An error while removing tmp dir {self.tmpdir}")
-        pass
+        try:
+            rmtree(self.tmpdir)
+        except Exception as e:
+            self.logger.exception(f"An error while removing tmp dir {self.tmpdir}")
 
     def render(self) -> Tuple:
         template_dir = self._template_dir

@@ -1,3 +1,4 @@
+from ipaddress import IPv4Address
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -9,8 +10,15 @@ import yaml
 
 
 class Settings(RedisSettings, BaseSettings):
+    SERVER_HOST: str = "0.0.0.0"
+    SERVER_PORT: int = 5000
+
     BASE_DIR: DirectoryPath = Path(__file__).parent.parent
-    BASE_URL: AnyHttpUrl = "http://localhost:8000"
+    URL_PREFIX: str = "/tfspanner/v1"
+    OPENAPI_URL: str = URL_PREFIX + "/openapi.json"
+    OPENAPI_DOC_URL: str = URL_PREFIX + "/doc"
+    OPENAPI_REDOC_URL: str = URL_PREFIX + "/redoc"
+    BASE_URL: AnyHttpUrl = "http://localhost:8000" + URL_PREFIX
 
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_USER: str = "postgres"

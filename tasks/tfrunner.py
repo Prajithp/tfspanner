@@ -109,6 +109,7 @@ def tf_apply(self, resource_id: str, param: Dict) -> bool:
 
     return True
 
+
 @app.task(base=Singleton, name="terraform_destroy", bind=True)
 def tf_destroy(self, resource_id: str, params: Dict) -> bool:
     with db_session_scope() as session:
